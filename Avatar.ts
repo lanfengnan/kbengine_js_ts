@@ -7,10 +7,8 @@ export class Avatar extends KBEngine.Entity {
     emailCom: AvatarEmailComponent = new AvatarEmailComponent(this);
     //#endregion
 
-    components = {}
     constructor() {
         super();
-        this.components[AvatarEmailComponent.name] = this.emailCom
     }
 
     name: string;

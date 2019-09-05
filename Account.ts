@@ -4,11 +4,11 @@ export class Account extends KBEngine.Entity {
     public uid: string;
 
     set_avatarID(oldVal: KBEngine.UINT64) {
-        cc.log("Account.avatarID = " + oldVal);
+        console.log("Account.avatarID = " + oldVal);
     }
 
     set_uid(oldVal: string) {
-        cc.log("Account.uid = " + oldVal);
+        console.log("Account.uid = " + oldVal);
     }
 
     OnInitAccount() {
