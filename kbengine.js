@@ -4148,7 +4148,7 @@ KBEngine.KBEngineApp = function (kbengineArgs) {
 				for (var i = 0; i < argsdata.length; i++) {
 					args.push(argsdata[i].createFromStream(stream));
 				}
-				comObj[methoddata[2]].apply(entity, args)
+				comObj[methoddata[2]].apply(comObj, args)
 			}
 		}
 	}
