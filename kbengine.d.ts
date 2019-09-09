@@ -73,6 +73,7 @@ declare module KBEngine {
 		_events: {};
 		register(evtName, classinst, strCallback): void;
 		deregister(evtName, classinst): void;
+		deregisterAll(classinst): void;
 		fire(a, ...b): void;
 	}
 
@@ -486,6 +487,7 @@ declare module KBEngine {
 		entitydefImported: boolean;
 		clientVersion: string;
 		clientScriptVersion: string;
+		entity_uuid:UINT64;
 		socket: WebSocket;
 		serverErrs: {};
 		entityclass: {};
