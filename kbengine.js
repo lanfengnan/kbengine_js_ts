@@ -158,8 +158,8 @@ KBEngine.UINT64 = function (lo, hi) {
 	this.hi = hi;
 
 	this.toString = function () {
-		var low = this.lo.toString(16);
-		var high = this.hi.toString(16);
+		var low = this.lo.toString();
+		var high = this.hi.toString();
 
 		var result = "";
 		if (this.hi > 0) {
