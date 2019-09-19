@@ -2733,7 +2733,7 @@ export module KBEngine {
         currserver = "loginapp";
         currstate = "create";
 
-        networkInterface: NetworkInterface = new NetworkInterface();
+        // networkInterface: NetworkInterface = new NetworkInterface();
         socket: WebSocket;
 
         serverVersion = "";
@@ -2778,7 +2778,7 @@ export module KBEngine {
             this.domain = this.args.domain;
             this.isWss = this.args.isWss;
             this.protocol = this.isWss ? "wss://" : "ws://";
-            this.socket = this.networkInterface.socket;
+            // this.socket = this.networkInterface.socket;
             this.installEvents();
         }
 
@@ -5204,211 +5204,6 @@ export module KBEngine {
             KBEngineapp = undefined;
 
             KBEevent.clear();
-        }
-    }
-
-    export class MessageReader {
-        READ_STATE_MSGID = 0
-        // 消息的长度65535以内
-        READ_STATE_MSGLEN = 1
-        // 当上面的消息长度都无法到达要求时使用扩展长度
-        // uint32
-        READ_STATE_MSGLEN_EX = 2
-        // 消息的内容
-        READ_STATE_BODY = 3
-        msgid = 0
-        msglen = 0
-        expectSize = 2
-        state = 0
-        stream: MemoryStream
-        constructor() {
-            this.stream = new MemoryStream(0)
-        }
-        process(datas) {
-            let length = datas.byteLength
-            let totallen = 0 //一点点加上去
-            while (length > 0 && this.expectSize > 0) {
-                if (this.state == this.READ_STATE_MSGID) {
-                    if (length >= this.expectSize) {
-                        this.stream.append(datas.slice(totallen, totallen + this.expectSize))
-                        totallen += this.expectSize;
-                        length -= this.expectSize;
-                        this.msgid = this.stream.readUint16();
-                        this.stream.clear();
-
-                        let msgHandler: Message = KBEclientmessages[this.msgid];
-                        if (!msgHandler) {
-                            ERROR_MSG("onmessage[]: not found msg(" + this.msgid + ")!");
-                        }
-
-                        if (msgHandler.length == -1) {
-                            this.state = this.READ_STATE_MSGLEN;
-                            this.expectSize = 2;
-                        }
-                        else if (msgHandler.length == 0) {
-                            // 如果是0个参数的消息，那么没有后续内容可读了，处理本条消息并且直接跳到下一条消息
-                            msgHandler.handleMessage(this.stream);
-
-                            this.state = this.READ_STATE_MSGID;
-                            this.expectSize = 2;
-                        }
-                        else {
-                            this.expectSize = msgHandler.length
-                            this.state = this.READ_STATE_BODY;
-                        }
-                    }
-                    else {
-                        this.stream.append(datas.slice(totallen, totallen + length))
-                        this.expectSize -= length;
-                        break;
-                    }
-                } else if (this.state == this.READ_STATE_MSGLEN) {
-                    if (length >= this.expectSize) {
-                        this.stream.append(datas.slice(totallen, totallen + this.expectSize))
-                        totallen += this.expectSize;
-                        length -= this.expectSize;
-
-                        this.msglen = this.stream.readUint16();
-                        this.stream.clear();
-
-                        // 长度扩展
-                        if (this.msglen >= 65535) {
-                            this.state = this.READ_STATE_MSGLEN_EX;
-                            this.expectSize = 4;
-                        }
-                        else {
-                            this.state = this.READ_STATE_BODY;
-                            this.expectSize = this.msglen;
-                        }
-                    }
-                    else {
-                        this.stream.append(datas.slice(totallen, totallen + length))
-                        this.expectSize -= length;
-                        break;
-                    }
-                } else if (this.state == this.READ_STATE_MSGLEN_EX) {
-                    if (length >= this.expectSize) {
-                        this.stream.append(datas.slice(totallen, totallen + this.expectSize))
-                        totallen += this.expectSize;
-                        length -= this.expectSize;
-
-                        this.expectSize = this.stream.readUint32();
-                        this.stream.clear();
-
-                        this.state = this.READ_STATE_BODY;
-                    }
-                    else {
-                        this.stream.append(datas.slice(totallen, totallen + length))
-                        this.expectSize -= length;
-                        break;
-                    }
-                } else if (this.state == this.READ_STATE_BODY) {
-                    if (length >= this.expectSize) {
-                        this.stream.append(datas.slice(totallen, totallen + this.expectSize))
-                        totallen += this.expectSize;
-                        length -= this.expectSize;
-
-                        let msg: Message = KBEclientmessages[this.msgid];
-                        if (!msg) {
-                            ERROR_MSG("onmessage[]: not found msg(" + this.msgid + ")!");
-                        }
-
-                        msg.handleMessage(this.stream);
-                        this.stream.clear();
-
-                        this.state = this.READ_STATE_MSGID;
-                        this.expectSize = 2;
-                    }
-                    else {
-                        this.stream.append(datas.slice(totallen, totallen + length))
-                        this.expectSize -= length;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    export class NetworkInterface {
-        socket: WebSocket = undefined;
-        private onOpenCB: Function = undefined;
-        messageReader: MessageReader
-
-        get isGood(): boolean {
-            return this.socket != undefined && this.socket.readyState === WebSocket.OPEN;
-        }
-
-        connectTo(addr: string, callbackFunc?: (event: Event) => any) {
-            try {
-                this.socket = new WebSocket(addr);
-            }
-            catch (e) {
-                ERROR_MSG("NetworkInterface::Connect:Init socket error:" + e);
-                KBEevent.fire("onConnectionState", false);
-                return;
-            }
-
-            this.socket.binaryType = "arraybuffer";
-
-            this.socket.onerror = this.onerror;
-            this.socket.onclose = this.onclose;
-            this.socket.onmessage = this.onmessage;
-            this.socket.onopen = this.onopen;
-            this.messageReader = new MessageReader()
-            if (callbackFunc) {
-                this.onOpenCB = callbackFunc;
-            }
-        }
-
-        close() {
-            try {
-                INFO_MSG("NetworkInterface::Close on good:" + this.isGood)
-                if (this.socket != undefined) {
-                    this.socket.close();
-                    this.socket.onclose = undefined;
-                    this.socket = undefined;
-                }
-            }
-            catch (e) {
-                ERROR_MSG("NetworkInterface::Close error:%s." + e);
-            }
-        }
-
-        send(buffer: ArrayBuffer) {
-            if (!this.isGood) {
-                ERROR_MSG("NetworkInterface::Send:socket is unavailable.");
-                return;
-            }
-
-            try {
-                DEBUG_MSG("NetworkInterface::Send buffer length:[%d]." + buffer.byteLength);
-                this.socket.send(buffer);
-            }
-            catch (e) {
-                ERROR_MSG("NetworkInterface::Send error:%s." + e);
-            }
-        }
-
-        private onopen = (event: MessageEvent) => {
-            DEBUG_MSG("NetworkInterface::onopen:success!");
-            if (this.onOpenCB) {
-                this.onOpenCB(event);
-                this.onOpenCB = undefined;
-            }
-        }
-
-        private onerror = (event: MessageEvent) => {
-            DEBUG_MSG("NetworkInterface::onerror:...!");
-            KBEevent.fire("onNetworkError", event);
-        }
-
-        private onmessage = (event: MessageEvent) => {
-            this.messageReader.process(event.data)
-        }
-
-        private onclose = () => {
-            DEBUG_MSG("NetworkInterface::onclose:...!");
-            KBEevent.fire("onDisconnected");
         }
     }
 }
