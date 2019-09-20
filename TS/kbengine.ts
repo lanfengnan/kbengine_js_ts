@@ -12,19 +12,22 @@ export module KBEngine {
     let KBE_FLT_MAX = 3.402823466e+38;
     let KBEallModules = {}
     let KBEngineapp: KBEngineApp = null;
+    let KBEngineModuledefs: object = {}
+    let KBEngineDatatypes = {};
 
+    /**
+     * 注册实体、实体组件
+     * @param className 类名
+     * @param classType 类型
+     */
     export function SetModules(className: string, classType: object) {
         KBEallModules[className] = classType;
     }
     //#endregion
 
     //#region  entityDef
-    let KBEngineModuledefs: object = {}
-    let KBEngineDatatypes = {};
-
     export class DATATYPE_UINT8 {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readUint8();
@@ -34,26 +37,21 @@ export module KBEngine {
             stream.writeUint8(v);
         }
 
-        parseDefaultValStr(v) {
+        parseDefaultValStr(v: any) {
             return parseInt(v);
         }
 
-        isSameType(v) {
-            if (typeof (v) != "number") {
+        isSameType(v: any) {
+            if (typeof (v) != "number")
                 return false;
-            }
-
-            if (v < 0 || v > 0xff) {
+            if (v < 0 || v > 0xff)
                 return false;
-            }
-
             return true;
         }
     }
 
     export class DATATYPE_UINT16 {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readUint16();
@@ -68,21 +66,16 @@ export module KBEngine {
         }
 
         isSameType(v: any) {
-            if (typeof (v) != "number") {
+            if (typeof (v) != "number")
                 return false;
-            }
-
-            if (v < 0 || v > 0xffff) {
+            if (v < 0 || v > 0xffff)
                 return false;
-            }
-
             return true;
         }
     }
 
     export class DATATYPE_UINT32 {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readUint32();
@@ -97,21 +90,16 @@ export module KBEngine {
         }
 
         isSameType(v: any) {
-            if (typeof (v) != "number") {
+            if (typeof (v) != "number")
                 return false;
-            }
-
-            if (v < 0 || v > 0xffffffff) {
+            if (v < 0 || v > 0xffffffff)
                 return false;
-            }
-
             return true;
         }
     }
 
     export class DATATYPE_UINT64 {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readUint64();
@@ -131,8 +119,7 @@ export module KBEngine {
     }
 
     export class DATATYPE_INT8 {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readInt8();
@@ -147,21 +134,16 @@ export module KBEngine {
         }
 
         isSameType(v: any) {
-            if (typeof (v) != "number") {
+            if (typeof (v) != "number")
                 return false;
-            }
-
-            if (v < -0x80 || v > 0x7f) {
+            if (v < -0x80 || v > 0x7f)
                 return false;
-            }
-
             return true;
         }
     }
 
     export class DATATYPE_INT16 {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readInt16();
@@ -176,21 +158,16 @@ export module KBEngine {
         }
 
         isSameType(v: any) {
-            if (typeof (v) != "number") {
+            if (typeof (v) != "number")
                 return false;
-            }
-
-            if (v < -0x8000 || v > 0x7fff) {
+            if (v < -0x8000 || v > 0x7fff)
                 return false;
-            }
-
             return true;
         }
     }
 
     export class DATATYPE_INT32 {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readInt32();
@@ -205,21 +182,16 @@ export module KBEngine {
         }
 
         isSameType(v: any) {
-            if (typeof (v) != "number") {
+            if (typeof (v) != "number")
                 return false;
-            }
-
-            if (v < -0x80000000 || v > 0x7fffffff) {
+            if (v < -0x80000000 || v > 0x7fffffff)
                 return false;
-            }
-
             return true;
         }
     }
 
     export class DATATYPE_INT64 {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readInt64();
@@ -239,8 +211,7 @@ export module KBEngine {
     }
 
     export class DATATYPE_FLOAT {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readFloat();
@@ -260,8 +231,7 @@ export module KBEngine {
     }
 
     export class DATATYPE_DOUBLE {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readDouble();
@@ -281,8 +251,7 @@ export module KBEngine {
     }
 
     export class DATATYPE_STRING {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readString();
@@ -293,10 +262,7 @@ export module KBEngine {
         }
 
         parseDefaultValStr(v: any) {
-            if (typeof (v) == "string")
-                return v;
-
-            return "";
+            return typeof (v) == "string" ? v : "";
         }
 
         isSameType(v: any) {
@@ -305,20 +271,10 @@ export module KBEngine {
     }
 
     export class DATATYPE_VECTOR2 {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
-            if (CLIENT_NO_FLOAT) {
-                var x = stream.readInt32();
-                var y = stream.readInt32();
-                return new Vector2(x, y);
-            }
-            else {
-                var x = stream.readFloat();
-                var y = stream.readFloat();
-                return new Vector2(x, y);
-            }
+            return CLIENT_NO_FLOAT ? new Vector2(stream.readInt32(), stream.readInt32()) : new Vector2(stream.readFloat(), stream.readFloat());
         }
 
         addToStream(stream: MemoryStream, v: any) {
@@ -337,29 +293,19 @@ export module KBEngine {
         }
 
         isSameType(v: any) {
-            if (v instanceof Vector2) {
-                return true;
-            }
-            return false;
+            return v instanceof Vector2 ? true : false;
         }
     }
 
     export class DATATYPE_VECTOR3 {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             if (CLIENT_NO_FLOAT) {
-                var x = stream.readInt32();
-                var y = stream.readInt32();
-                var z = stream.readInt32();
-                return new Vector3(x, y, z);
+                return new Vector3(stream.readInt32(), stream.readInt32(), stream.readInt32());
             }
             else {
-                var x = stream.readFloat();
-                var y = stream.readFloat();
-                var z = stream.readFloat();
-                return new Vector3(x, y, z);
+                return new Vector3(stream.readFloat(), stream.readFloat(), stream.readFloat());
             }
         }
 
@@ -381,34 +327,20 @@ export module KBEngine {
         }
 
         isSameType(v: any) {
-            if (v instanceof Vector3) {
-                return true;
-            }
-            return false;
+            return v instanceof Vector3 ? true : false;
         }
     }
 
     export class DATATYPE_VECTOR4 {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             if (CLIENT_NO_FLOAT) {
-                var x = stream.readInt32();
-                var y = stream.readInt32();
-                var z = stream.readInt32();
-                var w = stream.readInt32();
-                return new Vector4(x, y, z, w);
+                return new Vector4(stream.readInt32(), stream.readInt32(), stream.readInt32(), stream.readInt32());
             }
             else {
-                var x = stream.readFloat();
-                var y = stream.readFloat();
-                var z = stream.readFloat();
-                var w = stream.readFloat();
-                return new Vector4(x, y, z, w);
+                return new Vector4(stream.readFloat(), stream.readFloat(), stream.readFloat(), stream.readFloat());
             }
-
-            return undefined;
         }
 
         addToStream(stream: MemoryStream, v: any) {
@@ -431,17 +363,12 @@ export module KBEngine {
         }
 
         isSameType(v: any) {
-            if (v instanceof Vector4) {
-                return true;
-            }
-
-            return false;
+            return v instanceof Vector4 ? true : false;
         }
     }
 
     export class DATATYPE_PYTHON {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return stream.readBlob();
@@ -461,8 +388,7 @@ export module KBEngine {
     }
 
     export class DATATYPE_UNICODE {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             return UTF8ArrayToString(stream.readBlob());
@@ -473,10 +399,7 @@ export module KBEngine {
         }
 
         parseDefaultValStr(v: any) {
-            if (typeof (v) == "string")
-                return v;
-
-            return "";
+            return typeof (v) == "string" ? v : "";
         }
 
         isSameType(v: any) {
@@ -485,8 +408,7 @@ export module KBEngine {
     }
 
     export class DATATYPE_ENTITYCALL {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             var cid = stream.readUint64();
@@ -500,7 +422,6 @@ export module KBEngine {
             var id = 0;
             var type = 0;
             var utype = 0;
-
             stream.writeUint64(cid);
             stream.writeInt32(id);
             stream.writeUint16(type);
@@ -517,8 +438,7 @@ export module KBEngine {
     }
 
     export class DATATYPE_BLOB {
-        bind() {
-        }
+        bind() { }
 
         createFromStream(stream: MemoryStream) {
             var size = stream.readUint32();
@@ -551,12 +471,10 @@ export module KBEngine {
         createFromStream(stream: MemoryStream) {
             var size = stream.readUint32();
             var datas = [];
-
             while (size > 0) {
                 size--;
                 datas.push(this.type.createFromStream(stream));
             };
-
             return datas;
         }
 
@@ -577,7 +495,6 @@ export module KBEngine {
                     return false;
                 }
             }
-
             return true;
         }
     }
@@ -589,7 +506,6 @@ export module KBEngine {
         bind() {
             for (var itemkey in this.dicttype) {
                 var utype = this.dicttype[itemkey];
-
                 if (typeof (this.dicttype[itemkey]) == "number")
                     this.dicttype[itemkey] = KBEngineDatatypes[utype];
             }
@@ -600,7 +516,6 @@ export module KBEngine {
             for (var itemkey in this.dicttype) {
                 datas[itemkey] = this.dicttype[itemkey].createFromStream(stream);
             }
-
             return datas;
         }
 
@@ -620,7 +535,6 @@ export module KBEngine {
                     return false;
                 }
             }
-
             return true;
         }
     }
@@ -629,19 +543,16 @@ export module KBEngine {
     KBEngineDatatypes["UINT16"] = new DATATYPE_UINT16();
     KBEngineDatatypes["UINT32"] = new DATATYPE_UINT32();
     KBEngineDatatypes["UINT64"] = new DATATYPE_UINT64();
-
     KBEngineDatatypes["INT8"] = new DATATYPE_INT8();
     KBEngineDatatypes["INT16"] = new DATATYPE_INT16();
     KBEngineDatatypes["INT32"] = new DATATYPE_INT32();
     KBEngineDatatypes["INT64"] = new DATATYPE_INT64();
-
     KBEngineDatatypes["FLOAT"] = new DATATYPE_FLOAT();
     KBEngineDatatypes["DOUBLE"] = new DATATYPE_DOUBLE();
-
     KBEngineDatatypes["STRING"] = new DATATYPE_STRING();
-    KBEngineDatatypes["VECTOR2"] = new DATATYPE_VECTOR2;
-    KBEngineDatatypes["VECTOR3"] = new DATATYPE_VECTOR3;
-    KBEngineDatatypes["VECTOR4"] = new DATATYPE_VECTOR4;
+    KBEngineDatatypes["VECTOR2"] = new DATATYPE_VECTOR2();
+    KBEngineDatatypes["VECTOR3"] = new DATATYPE_VECTOR3();
+    KBEngineDatatypes["VECTOR4"] = new DATATYPE_VECTOR4();
     KBEngineDatatypes["PYTHON"] = new DATATYPE_PYTHON();
     KBEngineDatatypes["UNICODE"] = new DATATYPE_UNICODE();
     KBEngineDatatypes["ENTITYCALL"] = new DATATYPE_ENTITYCALL();
@@ -655,8 +566,8 @@ export module KBEngine {
      * @param hi 高位值，大于32位整数范围的数值位
      */
     export class INT64 {
-        lo: number;
-        hi: number;
+        lo: number = 0;
+        hi: number = 0;
         sign: number = 1;
 
         constructor(lo: number, hi: number) {
@@ -670,6 +581,10 @@ export module KBEngine {
                     this.lo = (4294967296 - this.lo) & 0xffffffff;
                     this.hi = 4294967296 - this.hi;
                 }
+            } else {
+                this.sign = 1;
+                this.hi = hi;
+                this.lo = lo;
             }
         }
 
@@ -678,8 +593,8 @@ export module KBEngine {
             if (this.sign < 0) {
                 result += "-"
             }
-            var low = this.lo.toString(16);
-            var high = this.hi.toString(16);
+            var low = this.lo.toString();
+            var high = this.hi.toString();
             if (this.hi > 0) {
                 result += high;
                 for (var i = 8 - low.length; i > 0; --i) {
@@ -817,8 +732,8 @@ export module KBEngine {
 
     //#region  Event相关
     class EventInfo {
-        callbackfn;
-        classinst;
+        callbackfn: object;
+        classinst: any;
         constructor(classinst: object, callbackfn: Function) {
             this.callbackfn = callbackfn;
             this.classinst = classinst
@@ -847,9 +762,8 @@ export module KBEngine {
          * @param classinst 监听的主体对象
          * @param strCallback 回调方法名称
          */
-        register(evtName, classinst, strCallback) {
-            var callbackfn = classinst[strCallback];
-            if (callbackfn == undefined) {
+        register(evtName: string, classinst: object, strCallback: string) {
+            if (classinst[strCallback] == undefined) {
                 ERROR_MSG('KBEevent::fire: not found strCallback(' + classinst + ")!" + strCallback);
                 return;
             }
@@ -860,7 +774,7 @@ export module KBEngine {
                 this._events[evtName] = evtlst;
             }
 
-            var info = new EventInfo(classinst, callbackfn);
+            var info = new EventInfo(classinst, classinst[strCallback]);
             evtlst.push(info);
         }
 
@@ -868,7 +782,7 @@ export module KBEngine {
          * 注销事件
          * @param classinst 监听的主体对象
          */
-        deregisterAll(classinst) {
+        deregisterAll(classinst: object) {
             for (var itemkey in this._events) {
                 this.deregister(itemkey, classinst);
             }
@@ -879,13 +793,11 @@ export module KBEngine {
          * @param evtName 事件名称
          * @param classinst 监听的主体对象
          */
-        deregister(evtName, classinst) {
+        deregister(evtName: string, classinst: object) {
             var evtlst = this._events[evtName];
-
             if (evtlst == undefined) {
                 return;
             }
-
             while (true) {
                 var found = false;
                 for (var i = 0; i < evtlst.length; i++) {
@@ -896,19 +808,17 @@ export module KBEngine {
                         break;
                     }
                 }
-
                 if (!found)
                     break;
             }
-
             this.removeFiredEvent(evtName, classinst);
         }
 
-        removeAllFiredEvent(classinst) {
+        removeAllFiredEvent(classinst: object) {
             this.removeFiredEvent("", classinst);
         }
 
-        removeFiredEvent(evtName, classinst) {
+        removeFiredEvent(evtName: string, classinst: object) {
             var firedEvents = this._firedEvents;
             while (true) {
                 var found = false;
@@ -920,7 +830,6 @@ export module KBEngine {
                         break;
                     }
                 }
-
                 if (!found)
                     break;
             }
@@ -1008,8 +917,8 @@ export module KBEngine {
     }
 
     export class MemoryStream {
-        rpos: number = 0;
-        wpos: number = 0;
+        rpos: number;
+        wpos: number;
         buffer: ArrayBuffer;
 
         constructor(size_or_buffer: number | ArrayBuffer) {
@@ -1019,6 +928,8 @@ export module KBEngine {
             else {
                 this.buffer = new ArrayBuffer(size_or_buffer);
             }
+            this.rpos = 0;
+            this.wpos = 0;
         }
 
         /**未确定 */
@@ -1362,13 +1273,12 @@ export module KBEngine {
     export class Bundle {
         memorystreams: Array<MemoryStream> = new Array<MemoryStream>();
         stream = createMemoryObject();
-
         numMessage = 0;
         messageLengthBuffer = null;
         messageLength = 0;
         msgtype = null;
+        static _objects = [];
 
-        //---------------------------------------------------------------------------------
         newMessage(msgtype) {
             this.fini(false);
 
@@ -1389,7 +1299,6 @@ export module KBEngine {
             }
         }
 
-        //---------------------------------------------------------------------------------
         writeMsgLength(v) {
             if (this.messageLengthBuffer) {
                 this.messageLengthBuffer[0] = v & 0xff;
@@ -1397,7 +1306,6 @@ export module KBEngine {
             }
         }
 
-        //---------------------------------------------------------------------------------
         fini(issend) {
             if (this.numMessage > 0) {
                 this.writeMsgLength(this.messageLength);
@@ -1414,7 +1322,6 @@ export module KBEngine {
             }
         }
 
-        //---------------------------------------------------------------------------------
         send(network: KBEngineApp) {
             this.fini(true);
             for (var i = 0; i < this.memorystreams.length; i++) {
@@ -1425,7 +1332,6 @@ export module KBEngine {
             this.reclaimObject();
         }
 
-        //---------------------------------------------------------------------------------
         checkStream(v) {
             if (v > this.stream.space()) {
                 this.memorystreams.push(this.stream);
@@ -1434,7 +1340,6 @@ export module KBEngine {
             this.messageLength += v;
         }
 
-        //---------------------------------------------------------------------------------
         writeInt8(v) {
             this.checkStream(1);
             this.stream.writeInt8(v);
@@ -1513,8 +1418,6 @@ export module KBEngine {
             this.msgtype = null;
         }
 
-        static _objects = [];
-
         reclaimObject() {
             this.clear();
             if (Bundle._objects != undefined)
@@ -1525,7 +1428,6 @@ export module KBEngine {
     function createBundleObject() {
         if (Bundle._objects == undefined)
             Bundle._objects = [];
-
         return Bundle._objects.length > 0 ? Bundle._objects.pop() : new Bundle();
     }
     //#endregion
@@ -1706,7 +1608,7 @@ export module KBEngine {
         args;
         handler;
 
-        constructor(id, name, length, argstype, args, handler) {
+        constructor(id: number, name: string, length: number, argstype, args, handler) {
             this.id = id;
             this.name = name;
             this.length = length;
@@ -1755,14 +1657,11 @@ export module KBEngine {
     let KBEmessages = {};
     KBEmessages["loginapp"] = {};
     KBEmessages["baseapp"] = {};
-    let KBEclientmessages = {};
-
     KBEmessages["Loginapp_importClientMessages"] = new Message(5, "importClientMessages", 0, 0, new Array(), null);
     KBEmessages["Baseapp_importClientMessages"] = new Message(207, "importClientMessages", 0, 0, new Array(), null);
     KBEmessages["Baseapp_importClientEntityDef"] = new Message(208, "importClientEntityDef", 0, 0, new Array(), null);
     KBEmessages["onImportClientMessages"] = new Message(518, "onImportClientMessages", -1, -1, new Array(), null);
-
-    let bufferedCreateEntityMessages = {};
+    let KBEclientmessages = {};
     //#endregion
 
     //#region  Math
@@ -1770,10 +1669,9 @@ export module KBEngine {
         x: number;
         y: number;
 
-        constructor(x, y) {
+        constructor(x: number, y: number) {
             this.x = x;
             this.y = y;
-            // return true;
         }
 
         distance(pos: Vector2) {
@@ -1817,21 +1715,22 @@ export module KBEngine {
         x: number;
         y: number;
         z: number;
-        constructor(x, y, z) {
+
+        constructor(x: number, y: number, z: number) {
             this.x = x;
             this.y = y;
             this.z = z;
-            // return true;
         }
 
-        distance(pos) {
+        /**与其他坐标点的距离 */
+        distance(pos: Vector3) {
             var x = pos.x - this.x;
             var y = pos.y - this.y;
             var z = pos.z - this.z;
             return Math.sqrt(x * x + y * y + z * z);
         }
 
-        //向量加法
+        /**向量加法*/
         add(vec3: Vector3) {
             this.x += vec3.x;
             this.y += vec3.y;
@@ -1839,7 +1738,7 @@ export module KBEngine {
             return this;
         }
 
-        //向量减法
+        /**向量减法*/
         sub(vec3: Vector3) {
             this.x -= vec3.x;
             this.y -= vec3.y;
@@ -1847,23 +1746,23 @@ export module KBEngine {
             return this;
         }
 
-        //向量乘法
-        mul(num) {
+        /**向量乘法*/
+        mul(num: number) {
             this.x *= num;
             this.y *= num;
             this.z *= num;
             return this;
         }
 
-        //向量除法
-        div(num) {
+        /**向量除法*/
+        div(num: number) {
             this.x /= num;
             this.y /= num;
             this.z /= num;
             return this;
         }
 
-        // 向量取反
+        /**向量取反*/
         neg() {
             this.x = -this.x;
             this.y = -this.y;
@@ -1877,12 +1776,11 @@ export module KBEngine {
         y: number;
         z: number;
         w: number;
-        constructor(x, y, z, w) {
+        constructor(x: number, y: number, z: number, w: number) {
             this.x = x;
             this.y = y;
             this.z = z;
             this.w = w;
-            // return true;
         }
 
         distance(pos: Vector4) {
@@ -1909,7 +1807,7 @@ export module KBEngine {
             return this;
         }
 
-        mul(num) {
+        mul(num: number) {
             this.x *= num;
             this.y *= num;
             this.z *= num;
@@ -1917,7 +1815,7 @@ export module KBEngine {
             return this;
         }
 
-        div(num) {
+        div(num: number) {
             this.x /= num;
             this.y /= num;
             this.z /= num;
@@ -1941,13 +1839,13 @@ export module KBEngine {
             max_inclusive = temp;
         }
         return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
-    };
+    }
 
-    function int82angle(angle/*int8*/, half/*bool*/) {
+    function int82angle(angle: number, half: boolean) {
         return angle * (Math.PI / (half ? 254.0 : 128.0));
-    };
+    }
 
-    function angle2int8(v/*float*/, half/*bool*/) {
+    function angle2int8(v: number, half: boolean) {
         var angle = 0;
         if (!half) {
             angle = Math.floor((v * 128.0) / Math.PI + 0.5);
@@ -1957,9 +1855,8 @@ export module KBEngine {
             angle = clampf(Math.floor((v * 254.0) / Math.PI + 0.5), -128.0, 127.0);
             // angle = KBEngine.clampf(floorf((v * 254.0) / float(Math.PI) + 0.5), -128.0, 127.0);
         }
-
         return angle;
-    };
+    }
     //#endregion
 
     //#region  Entity
@@ -2000,13 +1897,13 @@ export module KBEngine {
 
         // 与服务端实体脚本中__init__类似, 代表初始化实体
         __init__() {
+            this.inited = true;
         }
 
         callPropertysSetMethods() {
             var currModule = KBEngineModuledefs[this.className];
             for (var name in currModule.propertys) {
                 var propertydata = currModule.propertys[name];
-                var properUtype = propertydata[0];
                 var name = propertydata[2];
                 var setmethod = propertydata[5];
                 var flags = propertydata[6];
@@ -2025,19 +1922,16 @@ export module KBEngine {
                                 if (!this.isPlayer())
                                     continue;
                             }
-
                             setmethod.call(this, oldval);
                         }
                     }
                 }
-            };
+            }
         }
 
-        onDestroy() {
-        }
+        onDestroy() { }
 
-        onControlled(bIsControlled: boolean) {
-        }
+        onControlled(bIsControlled: boolean) { }
 
         setComponents(modulesDef) { }
 
@@ -2065,11 +1959,9 @@ export module KBEngine {
 
             var methodID = method[0];
             var methodArgs = method[3];
-            if (args !== null) {
-                if (methodArgs.length !== args.length) {
-                    ERROR_MSG("KBEngine.Entity::baseCall: args(" + methodArgs.length + "!= " + args.length + ") size is error!");
-                    return;
-                }
+            if (methodArgs.length !== args.length) {
+                ERROR_MSG("KBEngine.Entity::baseCall: args(" + methodArgs.length + "!= " + args.length + ") size is error!");
+                return;
             }
 
             this.base.newCall();
@@ -2093,7 +1985,6 @@ export module KBEngine {
                 this.base.bundle = null;
                 return;
             }
-
             this.base.sendCall(this.base.bundle);
         }
 
@@ -2155,8 +2046,7 @@ export module KBEngine {
             KBEevent.fire(KBEEventTypes.onEnterWorld, this);
         }
 
-        onEnterWorld() {
-        }
+        onEnterWorld() { }
 
         leaveWorld() {
             INFO_MSG(this.className + '::leaveWorld: ' + this.id);
@@ -2165,8 +2055,7 @@ export module KBEngine {
             KBEevent.fire(KBEEventTypes.onLeaveWorld, this);
         }
 
-        onLeaveWorld() {
-        }
+        onLeaveWorld() { }
 
         enterSpace() {
             INFO_MSG(this.className + '::enterSpace: ' + this.id);
@@ -2178,8 +2067,7 @@ export module KBEngine {
             KBEevent.fire(KBEEventTypes.set_direction, this);
         }
 
-        onEnterSpace() {
-        }
+        onEnterSpace() { }
 
         leaveSpace() {
             INFO_MSG(this.className + '::leaveSpace: ' + this.id);
@@ -2187,8 +2075,7 @@ export module KBEngine {
             KBEevent.fire("onLeaveSpace", this);
         }
 
-        onLeaveSpace() {
-        }
+        onLeaveSpace() { }
 
         set_position(old) {
             // DEBUG_MSG(this.className + "::set_position: " + old);
@@ -2202,11 +2089,9 @@ export module KBEngine {
             KBEevent.fire(KBEEventTypes.set_position, this);
         }
 
-        onUpdateVolatileData() {
-        }
+        onUpdateVolatileData() { }
 
         set_direction(old) {
-            // DEBUG_MSG(this.className + "::set_direction: " + old);
             KBEevent.fire(KBEEventTypes.set_direction, this);
         }
     }
@@ -2250,8 +2135,7 @@ export module KBEngine {
         }
 
         // 与服务端实体脚本中__init__类似, 代表初始化实体
-        __init__() {
-        }
+        __init__() { }
 
         callPropertysSetMethods() {
             var currModule = KBEngineModuledefs[this.className];
@@ -2281,11 +2165,10 @@ export module KBEngine {
                         }
                     }
                 }
-            };
+            }
         }
 
-        onDestroy() {
-        }
+        onDestroy() { }
 
         onControlled(bIsControlled: boolean) {
         }
@@ -2363,22 +2246,22 @@ export module KBEngine {
                 return;
             }
 
-            // var methodID = method[0];
-            // var args = method[3];
+            var methodID = method[0];
+            var methodArgs = method[3];
 
-            if (method.args.length != args.length) {
-                ERROR_MSG("KBEngine.Entity::cellCall: args(" + method.args.length + "!= " + args.length + ") size is error!");
+            if (methodArgs.length != args.length) {
+                ERROR_MSG("KBEngine.Entity::cellCall: args(" + methodArgs.length + "!= " + args.length + ") size is error!");
                 return;
             }
 
             this.cell.newCall();
             this.cell.bundle.writeUint16(this.entityComponentPropertyID);
-            this.cell.bundle.writeUint16(method.methodUtype);
+            this.cell.bundle.writeUint16(methodID);
 
             try {
                 for (var i = 0; i < args.length; i++) {
-                    if (method.args[i].isSameType(args[i])) {
-                        method.args[i].addToStream(this.cell.bundle, args[i + 1]);
+                    if (methodArgs[i].isSameType(args[i])) {
+                        methodArgs[i].addToStream(this.cell.bundle, args[i + 1]);
                     }
                     else {
                         throw new Error("KBEngine.Entity::cellCall: arg[" + i + "] is error!");
@@ -2403,8 +2286,7 @@ export module KBEngine {
             KBEevent.fire(KBEEventTypes.onEnterWorld, this);
         }
 
-        onEnterWorld() {
-        }
+        onEnterWorld() { }
 
         leaveWorld() {
             INFO_MSG(this.className + '::leaveWorld: ' + this.entityComponentPropertyID);
@@ -2413,8 +2295,7 @@ export module KBEngine {
             KBEevent.fire(KBEEventTypes.onLeaveWorld, this);
         }
 
-        onLeaveWorld() {
-        }
+        onLeaveWorld() { }
 
         enterSpace() {
             INFO_MSG(this.className + '::enterSpace: ' + this.entityComponentPropertyID);
@@ -2426,8 +2307,7 @@ export module KBEngine {
             KBEevent.fire(KBEEventTypes.set_direction, this);
         }
 
-        onEnterSpace() {
-        }
+        onEnterSpace() { }
 
         leaveSpace() {
             INFO_MSG(this.className + '::leaveSpace: ' + this.entityComponentPropertyID);
@@ -2435,26 +2315,20 @@ export module KBEngine {
             KBEevent.fire("onLeaveSpace", this);
         }
 
-        onLeaveSpace() {
-        }
+        onLeaveSpace() { }
 
         set_position(old) {
-            // DEBUG_MSG(this.className + "::set_position: " + old);
-
             if (this.isPlayer()) {
                 KBEngineapp.entityServerPos.x = this.position.x;
                 KBEngineapp.entityServerPos.y = this.position.y;
                 KBEngineapp.entityServerPos.z = this.position.z;
             }
-
             KBEevent.fire(KBEEventTypes.set_position, this);
         }
 
-        onUpdateVolatileData() {
-        }
+        onUpdateVolatileData() { }
 
         set_direction(old) {
-            // DEBUG_MSG(this.className + "::set_direction: " + old);
             KBEevent.fire(KBEEventTypes.set_direction, this);
         }
     }
@@ -2465,14 +2339,13 @@ export module KBEngine {
     export const ENTITYCALL_TYPE_BASE = 1;
 
     export class EntityCall {
-        id = 0;
-        className = "";
-        type = ENTITYCALL_TYPE_CELL;
-        networkInterface = KBEngineapp;
+        id: number = 0;
+        className: string = "";
+        type: number = ENTITYCALL_TYPE_CELL;
+        app: KBEngineApp = KBEngineapp;
         bundle: Bundle = null;
 
-        constructor() {
-        }
+        constructor() { }
 
         isBase() {
             return this.type == ENTITYCALL_TYPE_BASE;
@@ -2485,23 +2358,18 @@ export module KBEngine {
         newCall() {
             if (this.bundle == null)
                 this.bundle = createBundleObject();
-
             if (this.type == ENTITYCALL_TYPE_CELL)
                 this.bundle.newMessage(KBEmessages["Baseapp_onRemoteCallCellMethodFromClient"]);
             else
                 this.bundle.newMessage(KBEmessages["Entity_onRemoteMethodCall"]);
-
             this.bundle.writeInt32(this.id);
-
             return this.bundle;
         }
 
         sendCall(bundle: Bundle) {
             if (bundle == undefined)
                 bundle = this.bundle;
-
-            bundle.send(this.networkInterface);
-
+            bundle.send(this.app);
             if (this.bundle == bundle)
                 this.bundle = null;
         }
@@ -2510,17 +2378,25 @@ export module KBEngine {
 
     //#region  KBEngine args
     export class KBEngineArgs {
+        /**服务器登录IP */
         ip: string = "127.0.0.1";
+        /**服务器登录端口 */
         port: number = 20013;
+        /**服务器域名，使用wss时使用 */
         domain: string = "";
+        /**登录地址 */
         loginAddr: string = "";
+        /**游戏地址 */
         baseAddr: string = "";
+        /**更新频率 */
         updateHZ: number = 10 * 10;
+        /**心跳时间间隔 */
         serverHeartbeatTick: number = 30;
+        /**客户端类型 */
         clientType: number = 5;
-        // 在Entity初始化时是否触发属性的set_*事件(callPropertysSetMethods)
+        /**在Entity初始化时是否触发属性的set_*事件(callPropertysSetMethods)*/
         isOnInitCallPropertysSetMethods: boolean = true;
-        // 是否用wss, 默认使用ws
+        /**是否用wss, 默认使用ws*/
         isWss: boolean = false;
     }
     //#endregion
@@ -2733,7 +2609,6 @@ export module KBEngine {
         currserver = "loginapp";
         currstate = "create";
 
-        // networkInterface: NetworkInterface = new NetworkInterface();
         socket: WebSocket;
 
         serverVersion = "";
@@ -2778,7 +2653,6 @@ export module KBEngine {
             this.domain = this.args.domain;
             this.isWss = this.args.isWss;
             this.protocol = this.isWss ? "wss://" : "ws://";
-            // this.socket = this.networkInterface.socket;
             this.installEvents();
         }
 
@@ -2808,16 +2682,12 @@ export module KBEngine {
             if (KBEngineapp.entities != undefined && KBEngineapp.entities != null) {
                 KBEngineapp.clearEntities(true);
             }
-
             KBEngineapp.resetSocket();
-
             KBEngineapp.currserver = "loginapp";
             KBEngineapp.currstate = "create";
             KBEngineapp.currconnect = "loginapp";
-
             // 扩展数据
             KBEngineapp.serverdatas = undefined;
-
             // 版本信息
             KBEngineapp.serverVersion = "";
             KBEngineapp.serverScriptVersion = "";
@@ -2825,35 +2695,27 @@ export module KBEngine {
             KBEngineapp.serverEntityDefMD5 = "";
             KBEngineapp.clientVersion = "2.5.0";
             KBEngineapp.clientScriptVersion = "0.1.0";
-
             // player的相关信息
             KBEngineapp.entity_uuid = null;
             KBEngineapp.entity_id = 0;
             KBEngineapp.entity_type = "";
-
             // 这个参数的选择必须与kbengine_defs.xml::cellapp/aliasEntityID的参数保持一致
             KBEngineapp.useAliasEntityID = true;
-
             // 当前玩家最后一次同步到服务端的位置与朝向与服务端最后一次同步过来的位置
             KBEngineapp.entityServerPos = new Vector3(0.0, 0.0, 0.0);
-
             // 客户端所有的实体
             KBEngineapp.entities = {};
             KBEngineapp.entityIDAliasIDList = [];
             KBEngineapp.controlledEntities = [];
-
             // 空间的信息
             KBEngineapp.spacedata = {};
             KBEngineapp.spaceID = 0;
             KBEngineapp.spaceResPath = "";
             KBEngineapp.isLoadedGeometry = false;
-
             var dateObject = new Date();
             KBEngineapp.lastTickTime = dateObject.getTime();
             KBEngineapp.lastTickCBTime = dateObject.getTime();
-
             mappingDataType();
-
             // 当前组件类别， 配套服务端体系
             KBEngineapp.component = "client";
         }
@@ -2878,12 +2740,10 @@ export module KBEngine {
 
         hello() {
             var bundle = createBundleObject();
-
             if (KBEngineapp.currserver == "loginapp")
                 bundle.newMessage(KBEmessages["Loginapp_hello"]);
             else
                 bundle.newMessage(KBEmessages["Baseapp_hello"]);
-
             bundle.writeString(KBEngineapp.clientVersion);
             bundle.writeString(KBEngineapp.clientScriptVersion);
             bundle.writeBlob(KBEngineapp.encryptedKey);
@@ -2945,7 +2805,6 @@ export module KBEngine {
             stream.wpos = msg.data.byteLength;
 
             var app = KBEngineapp;
-            // var FragmentDataTypes = app.FragmentDataTypes;
 
             while (stream.length() > 0 || app.fragmentStream != null) {
                 if (app.fragmentDatasFlag == app.FragmentDataTypes.FRAGMENT_DATA_UNKNOW) {
@@ -2954,12 +2813,9 @@ export module KBEngine {
                             app.writeFragmentMessage(app.FragmentDataTypes.FRAGMENT_DATA_MESSAGE_ID, stream, MESSAGE_ID_LENGTH);
                             break;
                         }
-
                         app.currMsgID = stream.readUint16();
                     }
-
                     var msgHandler = KBEclientmessages[app.currMsgID];
-
                     if (!msgHandler) {
                         app.currMsgID = 0;
                         app.currMsgLen = 0;
@@ -3098,8 +2954,6 @@ export module KBEngine {
 
             KBEngineapp.resetSocket();
             KBEevent.fire(KBEEventTypes.onDisconnected);
-            //if(KBEngineapp.currserver != "loginapp")
-            //	KBEngineapp.reset();
         }
 
         send(msg) {
@@ -5165,7 +5019,6 @@ export module KBEngine {
 
             INFO_MSG("KBEngineApp::Client_onReqAccountNewPasswordCB: " + KBEngineapp.username + " is successfully!");
         }
-        //#endregion
 
         create(kbengineArgs) {
             if (KBEngineapp != undefined)
@@ -5206,4 +5059,5 @@ export module KBEngine {
             KBEevent.clear();
         }
     }
+    //#endregion
 }
