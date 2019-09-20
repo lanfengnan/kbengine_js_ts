@@ -12,7 +12,7 @@ export module KBEngine {
     let KBE_FLT_MAX = 3.402823466e+38;
     let KBEallModules = {}
     let KBEngineapp: KBEngineApp = null;
-    let KBEngineModuledefs: object = {}
+    let KBEngineModuledefs: Object = {}
     let KBEngineDatatypes = {};
 
     /**
@@ -20,7 +20,7 @@ export module KBEngine {
      * @param className 类名
      * @param classType 类型
      */
-    export function SetModules(className: string, classType: object) {
+    export function SetModules(className: string, classType: Object) {
         KBEallModules[className] = classType;
     }
     //#endregion
@@ -732,9 +732,9 @@ export module KBEngine {
 
     //#region  Event相关
     class EventInfo {
-        callbackfn: object;
+        callbackfn: Object;
         classinst: any;
-        constructor(classinst: object, callbackfn: Function) {
+        constructor(classinst: Object, callbackfn: Function) {
             this.callbackfn = callbackfn;
             this.classinst = classinst
         }
@@ -762,7 +762,7 @@ export module KBEngine {
          * @param classinst 监听的主体对象
          * @param strCallback 回调方法名称
          */
-        register(evtName: string, classinst: object, strCallback: string) {
+        register(evtName: string, classinst: Object, strCallback: string) {
             if (classinst[strCallback] == undefined) {
                 ERROR_MSG('KBEevent::fire: not found strCallback(' + classinst + ")!" + strCallback);
                 return;
@@ -782,7 +782,7 @@ export module KBEngine {
          * 注销事件
          * @param classinst 监听的主体对象
          */
-        deregisterAll(classinst: object) {
+        deregisterAll(classinst: Object) {
             for (var itemkey in this._events) {
                 this.deregister(itemkey, classinst);
             }
@@ -793,7 +793,7 @@ export module KBEngine {
          * @param evtName 事件名称
          * @param classinst 监听的主体对象
          */
-        deregister(evtName: string, classinst: object) {
+        deregister(evtName: string, classinst: Object) {
             var evtlst = this._events[evtName];
             if (evtlst == undefined) {
                 return;
@@ -814,11 +814,11 @@ export module KBEngine {
             this.removeFiredEvent(evtName, classinst);
         }
 
-        removeAllFiredEvent(classinst: object) {
+        removeAllFiredEvent(classinst: Object) {
             this.removeFiredEvent("", classinst);
         }
 
-        removeFiredEvent(evtName: string, classinst: object) {
+        removeFiredEvent(evtName: string, classinst: Object) {
             var firedEvents = this._firedEvents;
             while (true) {
                 var found = false;
