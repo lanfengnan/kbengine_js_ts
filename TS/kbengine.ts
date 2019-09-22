@@ -1643,9 +1643,9 @@ export module KBEngine {
 
             if (this.args.length <= 0) {
                 if (this.argsType < 0)
-                    this.handler(msgstream);
+                    this.handler.call(KBEngineapp, msgstream);
                 else
-                    this.handler();
+                    this.handler.call(KBEngineapp);
             }
             else {
                 this.handler.apply(KBEngineapp, this.createFromStream(msgstream));
