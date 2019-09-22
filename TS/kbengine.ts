@@ -849,7 +849,7 @@ export module KBEngine {
             }
 
             var ars = [];
-            for (var i = 1; i < args.length; i++)
+            for (var i = 0; i < args.length; i++)
                 ars.push(args[i]);
 
             for (var i = 0; i < evtlst.length; i++) {
