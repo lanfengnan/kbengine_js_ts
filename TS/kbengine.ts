@@ -2021,7 +2021,7 @@ export module KBEngine {
             try {
                 for (var i = 0; i < args.length; i++) {
                     if (methodArgs[i].isSameType(args[i])) {
-                        methodArgs[i].addToStream(this.cell.bundle, args[i + 1]);
+                        methodArgs[i].addToStream(this.cell.bundle, args[i]);
                     }
                     else {
                         throw new Error("KBEngine.Entity::cellCall: arg[" + i + "] is error!");
@@ -2410,26 +2410,35 @@ export module KBEngine {
         // <para> param3(bytes): datas // Datas by user defined. Data will be recorded into the KBE account database, you can access the datas through the script layer. If you use third-party account system, datas will be submitted to the third-party system.</para>
         createAccount: "createAccount",
 
-        // Login to server.
-        // <para> param1(string): accountName</para>
-        // <para> param2(string): password</para>
-        // <para> param3(bytes): datas // Datas by user defined. Data will be recorded into the KBE account database, you can access the datas through the script layer. If you use third-party account system, datas will be submitted to the third-party system.</para>
-        login: "login",
-
-        // Logout to baseapp, called when exiting the client.
-        logout: "logout",
-
-        // Relogin to baseapp.
-        reloginBaseapp: "reloginBaseapp",
+        // Create account feedback results.
+        // <para> param1(uint16): retcode. // server_errors</para>
+        // <para> param2(bytes): datas. // If you use third-party account system, the system may fill some of the third-party additional datas. </para>
+        onCreateAccountResult: "onCreateAccountResult",
 
         // Request server binding account Email.
         // <para> param1(string): emailAddress</para>
         bindAccountEmail: "bindAccountEmail",
 
+        // Response from binding account Email request.
+        // <para> param1(uint16): retcode. // server_errors</para>
+        onBindAccountEmail: "onBindAccountEmail",
+
         // Request to set up a new password for the account. Note: account must be online.
         // <para> param1(string): old_password</para>
         // <para> param2(string): new_password</para>
         newPassword: "newPassword",
+
+        // Response from a new password request.
+        // <para> param1(uint16): retcode. // server_errors</para>
+        onNewPassword: "onNewPassword",
+
+        // Request to reset password for the account. Note: account must be online.
+        // <para> param1(string): username</para>
+        resetPassword: "resetPassword",
+
+        // Response from a reset password request.
+        // <para> param1(uint16): retcode. // server_errors</para>
+        onResetPassword: "onResetPassword",
 
         // ------------------------------------连接相关------------------------------------
 
@@ -2446,10 +2455,17 @@ export module KBEngine {
 
         // ------------------------------------logon相关------------------------------------
 
-        // Create account feedback results.
-        // <para> param1(uint16): retcode. // server_errors</para>
-        // <para> param2(bytes): datas. // If you use third-party account system, the system may fill some of the third-party additional datas. </para>
-        onCreateAccountResult: "onCreateAccountResult",
+        // Login to server.
+        // <para> param1(string): accountName</para>
+        // <para> param2(string): password</para>
+        // <para> param3(bytes): datas // Datas by user defined. Data will be recorded into the KBE account database, you can access the datas through the script layer. If you use third-party account system, datas will be submitted to the third-party system.</para>
+        login: "login",
+
+        // Logout to baseapp, called when exiting the client.
+        logout: "logout",
+
+        // Relogin to baseapp.
+        reloginBaseapp: "reloginBaseapp",
 
         // Engine version mismatch.
         // <para> param1(string): clientVersion
@@ -2727,6 +2743,7 @@ export module KBEngine {
             KBEevent.register(KBEEventTypes.reloginBaseapp, KBEngineapp, "reloginBaseapp");
             KBEevent.register(KBEEventTypes.bindAccountEmail, KBEngineapp, "bindAccountEmail");
             KBEevent.register(KBEEventTypes.newPassword, KBEngineapp, "newPassword");
+            KBEevent.register(KBEEventTypes.resetPassword, KBEngineapp, "resetPassword");
         }
 
         uninstallEvents() {
@@ -2736,6 +2753,7 @@ export module KBEngine {
             KBEevent.deregister(KBEEventTypes.reloginBaseapp, KBEngineapp);
             KBEevent.deregister(KBEEventTypes.bindAccountEmail, KBEngineapp);
             KBEevent.deregister(KBEEventTypes.newPassword, KBEngineapp);
+            KBEevent.deregister(KBEEventTypes.resetPassword, KBEngineapp);
         }
 
         hello() {
@@ -3574,7 +3592,7 @@ export module KBEngine {
             }
         }
 
-        reset_password(username) {
+        resetPassword(username) {
             KBEngineapp.reset();
             KBEngineapp.username = username;
             KBEngineapp.resetpassword_loginapp(true);
@@ -4994,6 +5012,7 @@ export module KBEngine {
         }
 
         Client_onReqAccountResetPasswordCB(failedcode) {
+            KBEevent.fire(KBEEventTypes.onResetPassword, failedcode);
             if (failedcode != 0) {
                 ERROR_MSG("KBEngineApp::Client_onReqAccountResetPasswordCB: " + KBEngineapp.username + " is failed! code=" + failedcode + "(" + KBEngineapp.serverErrs[failedcode].name + ")!");
                 return;
@@ -5003,6 +5022,7 @@ export module KBEngine {
         }
 
         Client_onReqAccountBindEmailCB(failedcode) {
+            KBEevent.fire(KBEEventTypes.onBindAccountEmail, failedcode);
             if (failedcode != 0) {
                 ERROR_MSG("KBEngineApp::Client_onReqAccountBindEmailCB: " + KBEngineapp.username + " is failed! code=" + failedcode + "(" + KBEngineapp.serverErrs[failedcode].name + ")!");
                 return;
@@ -5012,6 +5032,7 @@ export module KBEngine {
         }
 
         Client_onReqAccountNewPasswordCB(failedcode) {
+            KBEevent.fire(KBEEventTypes.onNewPassword, failedcode);
             if (failedcode != 0) {
                 ERROR_MSG("KBEngineApp::Client_onReqAccountNewPasswordCB: " + KBEngineapp.username + " is failed! code=" + failedcode + "(" + KBEngineapp.serverErrs[failedcode].name + ")!");
                 return;
@@ -5020,9 +5041,9 @@ export module KBEngine {
             INFO_MSG("KBEngineApp::Client_onReqAccountNewPasswordCB: " + KBEngineapp.username + " is successfully!");
         }
 
-        create(kbengineArgs) {
+        static create(kbengineArgs) {
             if (KBEngineapp != undefined)
-                return;
+                return KBEngineapp;
 
             // 一些平台如小程序上可能没有assert
             if (console.assert == undefined) {
@@ -5043,6 +5064,7 @@ export module KBEngine {
             KBEngineapp.reset();
             KBEngineapp.installEvents();
             KBEngineapp.idInterval = setInterval(KBEngineapp.update, kbengineArgs.updateHZ);
+            return KBEngineapp;
         }
 
         destroy() {
