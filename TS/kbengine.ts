@@ -3878,7 +3878,7 @@ export module KBEngine {
                             var oldval = comObj[name]
                             comObj[name] = val
                             if (setmethod != null) {
-                                setmethod(oldval)
+                                setmethod.call(comObj, oldval)
                             } else {
                                 ERROR_MSG("组件：" + className + "不存在set方法：" + name);
                             }
